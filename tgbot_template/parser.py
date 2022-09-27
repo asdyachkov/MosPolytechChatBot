@@ -1,65 +1,78 @@
-# https://rasp.dmami.ru/site/group?group=211-327&session=0
-
-
 from selenium import webdriver
-import time, datetime, pytz
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup as BS
-
-# options = webdriver.ChromeOptions()
-# options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.100")
-
-driver = webdriver.Chrome(ChromeDriverManager().install())
-# driver = webdriver.Chrome(exutable_path="E:\\code/ChatBotPolytech\\tgbot_template\\driver\\chromedriver.exe")
+import json
+import time, datetime, pytz
 
 
-month = {
-	'Янв': [1, 2023],
-	'Фев': [2, 2023],
-	'Мар': [3, 2023],
-	'Апр': [4, 2023],
-	'Май': [5, 2023],
-	'Июн': [6, 2023],
-	'Июл': [7, 2023],
-	'Авг': [8, 2023],
-	'Сен': [9, 2022],
-	'Окт': [10, 2022],
-	'Ноя': [11, 2022],
-	'Дек': [12, 2022]
-}
+class Parser:
+	def __init__(self):
+		self.url = "https://rasp.dmami.ru"
+		self.group = "211-327"
+		self.driver = webdriver.Chrome(ChromeDriverManager().install())
+		self.dates = self._get_dates_from_file()
+		self.soup = self._get_soup()
 
-driver.get("https://rasp.dmami.ru")
-# driver.get("https://whatmyuseragent.com")
-time.sleep(1)
-best_group = "211-321"
-login = driver.find_element(By.CLASS_NAME, 'groups').send_keys(best_group)
-time.sleep(1)
 
-gropup = driver.find_element(By.ID, best_group).click()
-time.sleep(1)
-src = driver.page_source
-soup = BS(src, 'lxml')
+	def _get_dates_from_file(self):
+		with open("dates.json", encoding='utf-8') as file:
+			return json.load(file)
 
-pairs = soup.find(class_='schedule-day_today').find_all(class_='pair')
-for pair in pairs:
 
-	actual_date_of_pair_start, actual_date_of_pair_end = pair.find(class_='schedule-dates').text.split('-')
-	current_time = pytz.utc.localize(datetime.datetime.now())
+	def _get_soup(self):
+		self.driver.get(self.url)														# переход по ссылке
+		time.sleep(1)
+		self.driver.find_element(By.CLASS_NAME, 'groups').send_keys(self.group)			# поиск текстового поля и заполнение его номером группы
+		time.sleep(1)
+		self.driver.find_element(By.ID, self.group).click()								# нажатие на кнопку с группой
+		time.sleep(1)
+		html = self.driver.page_source													# сохранить страницу с расписанием в переменную
+		return BS(html, 'lxml')
 
-	current_now = datetime.datetime(current_time.year, current_time.month, current_time.day)
-	date_start = datetime.datetime(month[actual_date_of_pair_start.strip().split(' ')[1]][1], month[actual_date_of_pair_start.strip().split(' ')[1]][0], int(actual_date_of_pair_start.strip().split(' ')[0]))
-	date_end = datetime.datetime(month[actual_date_of_pair_end.strip().split(' ')[1]][1], month[actual_date_of_pair_end.strip().split(' ')[1]][0], int(actual_date_of_pair_end.strip().split(' ')[0]))
 
-	if current_now >= date_start and current_now <= date_end:
-		time_start = pair.find(class_='time').text.split('-')[0]
-		tmp = time_start.split(':')
-		time_start_in_minutes = int(tmp[0]) * 60 + int(tmp[1])
-
-		current_time_in_minutes = current_time.hour * 60 + current_time.minute
-
-		diff = time_start_in_minutes - current_time_in_minutes
+	def _get_pair_dates(self, pair):
+		date_pair_start, date_pair_end = pair.find(class_='schedule-dates').text.split('-')						# получаем время начала и конца пары в формате строки
+		date_pair_start, date_pair_end = date_pair_start.strip().split(), date_pair_end.strip().split()			# получить даты начала и конца пары, тк на сайте могут быть указаны пары, которых еще или уже нет
 		
+		pair_start_date_year = self.dates[date_pair_start[1]][1]												# по месяцу получить год начала пары
+		pair_start_date_month = self.dates[date_pair_start[1]][0]												# по месяцу получить месяц начала пары в числовом формате
+		pair_start_date_day = int(date_pair_start[0])															# получить число начала пары
+		date_start = datetime.datetime(pair_start_date_year, pair_start_date_month, pair_start_date_day)		# сформировать дату для дальнейшего сравнения
+
+		pair_end_date_year = self.dates[date_pair_end[1]][1]													# по месяцу получить год конца пары
+		pair_end_date_month = self.dates[date_pair_end[1]][0]													# по месяцу получить месяц конца пары в числовом формате
+		pair_end_date_day = int(date_pair_end[0])																# получить число конца пары
+		date_end = datetime.datetime(pair_end_date_year, pair_end_date_month, pair_end_date_day)				# сформировать дату для дальнейшего сравнения
+		return date_start, date_end
 
 
+	def _get_current_local_time(self):
+		current_time = pytz.utc.localize(datetime.datetime.now())
+		return datetime.datetime(current_time.year, current_time.month, current_time.day)
+
+
+	def get_to_next_pair(self):
+		pairs = self.soup.find(class_='schedule-day_today').find_all(class_='pair')								# получить расписание на сегодня
+		for pair in pairs:
+			current_time = self._get_current_local_time()
+			date_start, date_end = self._get_pair_dates(pair)
+			if current_time >= date_start and current_time <= date_end:										# узнать, есть ли пара в расписании
+				pair_time = pair.find(class_='time').text.split('-')[0]										# получить время пары (9:00 - 10:40)
+				time_start = pair_time.split(':')
+
+				time_start_in_minutes = int(time_start[0]) * 60 + int(time_start[1])						# перевести время начала пары в минуты
+				current_time_in_minutes = current_time.hour * 60 + current_time.minute 						# перевести текущее время в минуты
+				time_to_pair = time_start_in_minutes - current_time_in_minutes								# посчитать время до начала пары
+				if time_to_pair > 0 and time_to_pair < 16:
+					pair_rooms = " ".join([room.text for room in pair.find_all(class_="schedule-auditory")])
+					pair_name = pair.find(class_="bold").text
+					pair_teacher = pair.find(class_="teacher").text
+					return f"Пара через {time_to_pair} минут\n{pair_rooms}\n{pair_name}\n{pair_teacher}"
+		return "сегодня нет пар"
+
+
+
+parser = Parser()
+print(parser.get_to_next_pair())
