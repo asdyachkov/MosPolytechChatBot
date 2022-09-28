@@ -1,5 +1,6 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup as BS
@@ -9,9 +10,11 @@ import time, datetime, pytz
 
 class Parser:
 	def __init__(self):
+		chrome_options = Options()
+		chrome_options.add_argument("--headless")
 		self.url = "https://rasp.dmami.ru"
-		self.group = "211-327"
-		self.driver = webdriver.Chrome(ChromeDriverManager().install())
+		self.group = "211-321"
+		self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 		self.dates = self._get_dates_from_file()
 		self.soup = self._get_soup()
 
@@ -50,7 +53,8 @@ class Parser:
 
 	def _get_current_local_time(self):
 		current_time = pytz.utc.localize(datetime.datetime.now())
-		return datetime.datetime(current_time.year, current_time.month, current_time.day)
+		return datetime.datetime(current_time.year, current_time.month, current_time.day, current_time.hour, current_time.minute)
+
 
 
 	def get_to_next_pair(self):
