@@ -9,11 +9,11 @@ import time, datetime, pytz
 
 
 class Parser:
-	def __init__(self):
+	def __init__(self, group):
 		chrome_options = Options()
 		chrome_options.add_argument("--headless")
 		self.url = "https://rasp.dmami.ru"
-		self.group = "211-321"
+		self.group = group
 		self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 		self.dates = self._get_dates_from_file()
 		self.soup = self._get_soup()
@@ -29,7 +29,10 @@ class Parser:
 		time.sleep(1)
 		self.driver.find_element(By.CLASS_NAME, 'groups').send_keys(self.group)			# поиск текстового поля и заполнение его номером группы
 		time.sleep(1)
-		self.driver.find_element(By.ID, self.group).click()								# нажатие на кнопку с группой
+		try:
+			self.driver.find_element(By.ID, self.group).click()							# нажатие на кнопку с группой
+		except(Exception):
+			return "polomalos'"
 		time.sleep(1)
 		html = self.driver.page_source													# сохранить страницу с расписанием в переменную
 		return BS(html, 'lxml')
@@ -57,26 +60,29 @@ class Parser:
 
 
 
-	def get_to_next_pair(self):
-		pairs = self.soup.find(class_='schedule-day_today').find_all(class_='pair')								# получить расписание на сегодня
-		for pair in pairs:
-			current_time = self._get_current_local_time()
-			date_start, date_end = self._get_pair_dates(pair)
-			if current_time >= date_start and current_time <= date_end:										# узнать, есть ли пара в расписании
-				pair_time = pair.find(class_='time').text.split('-')[0]										# получить время пары (9:00 - 10:40)
-				time_start = pair_time.split(':')
+	def get_next_pair(self):
+		if self.soup != "polomalos'":
+			pairs = self.soup.find(class_='schedule-day_today').find_all(class_='pair')								# получить расписание на сегодня
+			for pair in pairs:
+				current_time = self._get_current_local_time()
+				date_start, date_end = self._get_pair_dates(pair)
+				if current_time >= date_start and current_time <= date_end:										# узнать, есть ли пара в расписании
+					pair_time = pair.find(class_='time').text.split('-')[0]										# получить время пары (9:00 - 10:40)
+					time_start = pair_time.split(':')
 
-				time_start_in_minutes = int(time_start[0]) * 60 + int(time_start[1])						# перевести время начала пары в минуты
-				current_time_in_minutes = current_time.hour * 60 + current_time.minute 						# перевести текущее время в минуты
-				time_to_pair = time_start_in_minutes - current_time_in_minutes								# посчитать время до начала пары
-				if time_to_pair > 0 and time_to_pair < 16:
-					pair_rooms = " ".join([room.text for room in pair.find_all(class_="schedule-auditory")])
-					pair_name = pair.find(class_="bold").text
-					pair_teacher = pair.find(class_="teacher").text
-					return f"Пара через {time_to_pair} минут\n{pair_rooms}\n{pair_name}\n{pair_teacher}"
-		return "сегодня нет пар"
+					time_start_in_minutes = int(time_start[0]) * 60 + int(time_start[1])						# перевести время начала пары в минуты
+					current_time_in_minutes = current_time.hour * 60 + current_time.minute 						# перевести текущее время в минуты
+					time_to_pair = time_start_in_minutes - current_time_in_minutes								# посчитать время до начала пары
+					if time_to_pair > 0 and time_to_pair < 16:
+						pair_rooms = " ".join([room.text for room in pair.find_all(class_="schedule-auditory")])
+						pair_name = pair.find(class_="bold").text
+						pair_teacher = pair.find(class_="teacher").text
+						return f"Пара через {time_to_pair} минут\n{pair_rooms}\n{pair_name}\n{pair_teacher}"
+			return "Cегодня нет пар"
+		else:
+			return "Введена неверная группа!"
 
 
-
-parser = Parser()
-print(parser.get_to_next_pair())
+if __name__ == "__main__":
+	parser = Parser("211-321")
+	print(parser.get_next_pair())
