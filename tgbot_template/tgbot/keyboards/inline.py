@@ -18,3 +18,6 @@ inline_btn5 = InlineKeyboardMarkup().add(button5)
 
 button_full = InlineKeyboardButton("Кнопки", callback_data="btns")
 inline_btns = InlineKeyboardMarkup(row_width=1).add(button1, button2, button3, button4, button5)
+
+
+
