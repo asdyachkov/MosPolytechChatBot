@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 import sys, os
 import re
 from aiogram.dispatcher import FSMContext
-from MosPolytechChatBot.tgbot_template.tgbot.misc.states import NotificationStates
+from tgbot.misc.states import NotificationStates
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 import module_parser
 
