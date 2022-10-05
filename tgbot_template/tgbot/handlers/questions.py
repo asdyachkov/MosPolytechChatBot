@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 from ..keyboards import inline
 from ..keyboards.answer import answers
+from ..keyboards import  reply
 
 
 async def start_questions(message: types.Message):
@@ -12,10 +13,13 @@ async def questions(callback: types.CallbackQuery):
 
     if number == 1:
         await callback.message.edit_reply_markup(reply_markup=inline.board1)
+        await callback.message.edit_text("Технологическое предпринимательство", reply_markup=inline.board1)
     elif number == 4:
         await callback.message.edit_reply_markup(reply_markup=inline.board4)
+        await callback.message.edit_text("Управление проектами", reply_markup=inline.board1)
     elif number == 5:
         await callback.message.edit_reply_markup(reply_markup=inline.board5)
+        await callback.message.edit_text("Проектная деятельность", reply_markup=inline.board1)
     elif number == 12:
         await callback.message.edit_reply_markup(reply_markup=inline.board12)
     elif number == 41:
