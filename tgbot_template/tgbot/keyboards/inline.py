@@ -4,14 +4,13 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 #Стартовая развилка
 first_board = InlineKeyboardMarkup(row_width=1)
-fb_buttons = [
+first_board.add(
 	InlineKeyboardButton("Технологическое предпринимательство", callback_data = "b_b1"),
 	InlineKeyboardButton("Ликвидация расхождений в учебных планах", callback_data = "b_b2"),
 	InlineKeyboardButton("Перезачет дисциплины", callback_data = "b_b3"),
 	InlineKeyboardButton("Управление проектами", callback_data = "b_b4"),
 	InlineKeyboardButton("Проектная деятельность", callback_data = "b_b5")
-]
-for butt in fb_buttons: first_board.add(butt)
+)
 
 
 
