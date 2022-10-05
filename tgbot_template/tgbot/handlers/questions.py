@@ -7,7 +7,6 @@ async def start_questions(message: types.Message):
 
 async def questions(callback: types.CallbackQuery):
     number = int(callback.data[3:])
-    await callback.message.answer("Ответ")
 
     if number == 1:
         await callback.message.edit_reply_markup(reply_markup=inline.board1)
@@ -19,13 +18,11 @@ async def questions(callback: types.CallbackQuery):
         await callback.message.edit_reply_markup(reply_markup=inline.board12)
     elif number == 41:
         await callback.message.edit_reply_markup(reply_markup=inline.board41)
-    elif number == 52:
-        await callback.message.edit_reply_markup(reply_markup=inline.board52)
+    elif number == 55:
+        await callback.message.edit_reply_markup(reply_markup=inline.board55)
     else:
-        text = answers[number]
-        await callback.message.answer(text)
-
-    await callback.message.answer("Ответ")
+        #text = answers[number]
+        await callback.message.answer(answers[number])
     
 
 
