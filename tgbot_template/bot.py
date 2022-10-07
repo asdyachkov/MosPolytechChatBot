@@ -10,6 +10,7 @@ from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin
 from tgbot.handlers.user import register_user
 from tgbot.handlers.echo import register_echo
+from tgbot.handlers.subscription import register_subscription
 from tgbot.handlers.notification import register_notification
 from tgbot.middlewares.environment import EnvironmentMiddleware
 
@@ -28,6 +29,8 @@ def register_all_handlers(dp):
     register_admin(dp)
     register_user(dp)
     register_notification(dp)
+    register_subscription(dp)
+
 
 
 

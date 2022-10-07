@@ -14,7 +14,7 @@ async def start_notification(message: types.Message, state: FSMContext):
 
 async def notification(message: types.Message, state: FSMContext):
     await message.answer("Секундочку)")
-    if re.match("^\d{3}-\d{3,4}$", message.text):
+    if re.match("^\d{3}-\d{3,4}$", message.text.strip()):
         Zparser = module_parser.Parser(message.text)
         await message.answer(Zparser.get_next_pair())
         await state.finish()
