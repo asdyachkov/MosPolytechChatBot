@@ -128,14 +128,39 @@ class ParserPD:
 		return data
 
 
-	def write_data_to_json_file(self):
-		data = self.get_data_2_5_course()
-		with open('2-5.json', 'w', encoding='utf-8') as file:
+	def get_data_1_course(self):
+		data = dict()
+		for row in self.soup.find_all('tbody')[1].find_all('tr')[3:]:
+			tema = ''
+			group = ''
+			for i, col in enumerate(row.find_all('td')[1:]):
+				if i == 0:
+					if col.text:
+						group, tema = col.text.split('. ')
+						if tema not in data.keys():
+							data[tema] = dict()
+						data[tema][group] = []
+					else:
+						break
+				else:
+					if col.text:
+						data[tema][group].append(' '.join(col.text.split()))
+					else:
+						data[tema][group].append('Нет информации.')
+		return data
+
+
+
+
+	def write_data_to_json_file(self, data, fname):
+		with open(fname, 'w', encoding='utf-8') as file:
 			file.write(json.dumps(data, ensure_ascii=False, indent=4))
 
 
 
 if __name__ == "__main__":
-	ParserPD().write_data_to_json_file()
+	p = ParserPD()
+	p.write_data_to_json_file(p.get_data_2_5_course(), '2-5_course.json')
+	p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
 	# parser = Parser("211-321")
 	# print(parser.get_next_pair())
