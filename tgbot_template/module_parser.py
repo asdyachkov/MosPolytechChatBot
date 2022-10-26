@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup as BS
 import json
+import requests
 import time, datetime, pytz
 
 
@@ -61,28 +62,80 @@ class Parser:
 
 
 	def get_next_pair(self):
-		if self.soup != "polomalos'":
-			pairs = self.soup.find(class_='schedule-day_today').find_all(class_='pair')								# получить расписание на сегодня
-			for pair in pairs:
-				current_time = self._get_current_local_time()
-				date_start, date_end = self._get_pair_dates(pair)
-				if current_time >= date_start and current_time <= date_end:										# узнать, есть ли пара в расписании
-					pair_time = pair.find(class_='time').text.split('-')[0]										# получить время пары (9:00 - 10:40)
-					time_start = pair_time.split(':')
+		try:
+			if self.soup != "polomalos'":
+				pairs = self.soup.find(class_='schedule-day_today').find_all(class_='pair')								# получить расписание на сегодня
+				for pair in pairs:
+					current_time = self._get_current_local_time()
+					date_start, date_end = self._get_pair_dates(pair)
+					if current_time >= date_start and current_time <= date_end:										# узнать, есть ли пара в расписании
+						pair_time = pair.find(class_='time').text.split('-')[0]										# получить время пары (9:00 - 10:40)
+						time_start = pair_time.split(':')
 
-					time_start_in_minutes = int(time_start[0]) * 60 + int(time_start[1])						# перевести время начала пары в минуты
-					current_time_in_minutes = current_time.hour * 60 + current_time.minute 						# перевести текущее время в минуты
-					time_to_pair = time_start_in_minutes - current_time_in_minutes								# посчитать время до начала пары
-					if time_to_pair > 0 and time_to_pair < 16:
+						time_start_in_minutes = int(time_start[0]) * 60 + int(time_start[1])						# перевести время начала пары в минуты
+						current_time_in_minutes = current_time.hour * 60 + current_time.minute 						# перевести текущее время в минуты
+						time_to_pair = time_start_in_minutes - current_time_in_minutes								# посчитать время до начала пары
+						# if time_to_pair > 0 and time_to_pair < 16:
 						pair_rooms = " ".join([room.text for room in pair.find_all(class_="schedule-auditory")])
 						pair_name = pair.find(class_="bold").text
 						pair_teacher = pair.find(class_="teacher").text
 						return f"Пара через {time_to_pair} минут\n{pair_rooms}\n{pair_name}\n{pair_teacher}"
-			return "Cегодня нет пар"
-		else:
-			return "Введена неверная группа!"
+				return "Cегодня нет пар"
+			else:
+				return "Введена неверная группа!"
+		except:
+			pass # ne rabotaet po voskreseinyam :c
+
+
+class ParserPD:
+	def __init__(self):
+		self.url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1Jm1FlsR4ldXW75Qkval9K2_c_Zs8u96xcFsP9eOCRmao7MbETHUFWY7rr_s4qC-5_Hyr-p1XC4tr/pubhtml"
+		self.soup = self._get_soup()
+
+
+	def _get_soup(self):
+		html = requests.get(self.url).content
+		return BS(html, 'lxml')
+
+
+	def get_data_2_5_course(self):
+		data = dict()
+		for row in self.soup.find('tbody').find_all('tr')[3:]:
+			tema = ''
+			pd_name = ''
+			for i, col in enumerate(row.find_all('td')[1:]):
+				if i == 0:
+					if col.text:
+						if col.text not in data.keys():
+							data[col.text] = dict()
+						tema = col.text
+					else:
+						break
+
+				elif i == 1:
+					if col.text:
+						if col.text not in data[tema].keys():
+							data[tema][col.text] = []
+						pd_name = col.text
+					else:
+						break
+
+				elif i in range(2, 6):
+					if col.text:
+						data[tema][pd_name].append(' '.join(col.text.split()))
+					else:
+						data[tema][pd_name].append('Нет информации.')
+		return data
+
+
+	def write_data_to_json_file(self):
+		data = self.get_data_2_5_course()
+		with open('2-5.json', 'w', encoding='utf-8') as file:
+			file.write(json.dumps(data, ensure_ascii=False, indent=4))
+
 
 
 if __name__ == "__main__":
-	parser = Parser("211-321")
-	print(parser.get_next_pair())
+	ParserPD().write_data_to_json_file()
+	# parser = Parser("211-321")
+	# print(parser.get_next_pair())
