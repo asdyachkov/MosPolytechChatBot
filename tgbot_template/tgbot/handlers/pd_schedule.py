@@ -4,11 +4,23 @@ from tgbot.keyboards.PDbuttonsCallback import PD_callback
 from tgbot.misc.states import PDStates
 from tgbot.keyboards.PDbuttons import choose_course, choose_pd, choose_group_pd, choose_group_2_5_pd
 from aiogram.types import CallbackQuery
+import module_parser
 import json
+import datetime
+import time
 
 
 async def start_pd(message: types.Message, state: FSMContext):
-    
+    try:
+        last_modified = time.strftime("%Y-%m-%d", time.strptime(time.ctime(os.path.getmtime(f"1_course.json"))))
+        if str(last_modified) != str(datetime.date.today()):
+            p = module_parser.ParserPD()
+            p.write_data_to_json_file(p.get_data_2_5_course(), '2-5_course.json')
+            p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
+    except:
+        p = module_parser.ParserPD()
+        p.write_data_to_json_file(p.get_data_2_5_course(), '2-5_course.json')
+        p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
     await message.answer("Введите Ваш курс", reply_markup=choose_course)
     await state.set_state(PDStates.W1)
 
