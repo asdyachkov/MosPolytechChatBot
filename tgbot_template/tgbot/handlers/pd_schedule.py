@@ -25,6 +25,11 @@ async def start_pd(message: types.Message, state: FSMContext):
     await state.set_state(PDStates.W1)
 
 
+async def end_pd(call: CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await state.finish()
+
+
 async def start_pd_back(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text("Введите Ваш курс", reply_markup=choose_course)
     await state.set_state(PDStates.W1)
@@ -118,6 +123,7 @@ def register_pd(dp: Dispatcher):
 
     dp.register_callback_query_handler(theme_pd_1_course, PD_callback.filter(choiсe="1"), state=PDStates.W1)
     dp.register_callback_query_handler(theme_pd_2_5_course, PD_callback.filter(choiсe="2-5"), state=PDStates.W1)
+    dp.register_callback_query_handler(end_pd, PD_callback.filter(choiсe="back"), state=PDStates.W1)
 
     dp.register_callback_query_handler(start_pd_back, PD_callback.filter(choiсe="back"), state=PDStates.W2)
     dp.register_callback_query_handler(start_pd_back, PD_callback.filter(choiсe="back"), state=PDStates.W4)

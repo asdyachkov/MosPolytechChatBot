@@ -11,6 +11,9 @@ choose_course = InlineKeyboardMarkup(
         ],
         [
             InlineKeyboardButton(text="2-5", callback_data=PD_callback.new(choiсe="2-5"))
+        ],
+        [
+            InlineKeyboardButton(text="Выход", callback_data=PD_callback.new(choiсe="back"))
         ]
     ]
 )

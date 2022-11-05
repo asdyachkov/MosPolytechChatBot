@@ -84,7 +84,7 @@ class Parser:
 			else:
 				return "Введена неверная группа!"
 		except:
-			pass # ne rabotaet po voskreseinyam :c
+			return "Сегодня нет пар"
 
 
 class ParserPD:
