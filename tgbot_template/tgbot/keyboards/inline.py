@@ -60,3 +60,11 @@ board55.add(
 	InlineKeyboardButton("Когда и где пройдет пересдача?", callback_data = "b_b551"),
 	InlineKeyboardButton("Как получить зачтено", callback_data = "b_b552")
 )
+
+
+
+#Обращение в ЦПД
+board_no_ans = InlineKeyboardMarkup(row_width=1)
+board_no_ans.add(
+	InlineKeyboardButton("Не нашли ответа?\nОбращение в ЦПД", callback_data = "b_b1000001")
+)
