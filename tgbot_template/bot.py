@@ -11,7 +11,11 @@ from tgbot.handlers.admin import register_admin
 from tgbot.handlers.user import register_user
 from tgbot.handlers.echo import register_echo
 from tgbot.handlers.notification import register_notification
+
 from tgbot.handlers.pd_schedule import register_pd
+
+from tgbot.handlers.questions import register_questions
+
 from tgbot.middlewares.environment import EnvironmentMiddleware
 
 logger = logging.getLogger(__name__)
@@ -29,7 +33,11 @@ def register_all_handlers(dp):
     register_admin(dp)
     register_user(dp)
     register_notification(dp)
+
     register_pd(dp)
+
+    register_questions(dp)
+
 
 
 
