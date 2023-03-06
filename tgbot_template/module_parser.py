@@ -79,7 +79,10 @@ class Parser:
 						pair_rooms = " ".join([room.text for room in pair.find_all(class_="schedule-auditory")])
 						pair_name = pair.find(class_="bold").text
 						pair_teacher = pair.find(class_="teacher").text
-						return f"Пара через {time_to_pair} минут\n{pair_rooms}\n{pair_name}\n{pair_teacher}"
+						if time_to_pair > 0:
+							return f"Пара через {time_to_pair} минут\n{pair_rooms}\n{pair_name}\n{pair_teacher}"
+						else:
+							return "Пары закончились"
 				return "Cегодня нет пар"
 			else:
 				return "Введена неверная группа!"
