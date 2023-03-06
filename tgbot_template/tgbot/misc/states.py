@@ -4,7 +4,6 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 class NotificationStates(StatesGroup):
     Q1 = State()
     Q2 = State()
-    Q3 = State()
 
 class PDStates(StatesGroup):
     W1 = State()
@@ -15,3 +14,7 @@ class PDStates(StatesGroup):
     W6 = State()
     W7 = State()
     W8 = State()
+
+
+class QuestionsStates(StatesGroup):
+    C1 = State()

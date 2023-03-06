@@ -1,15 +1,15 @@
 from aiogram import types, Dispatcher
 
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton
-from ..keyboards import inline
+from tgbot.keyboards import inline
 #from ..keyboards import reply
-from ..keyboards.answer import answers
+from tgbot.keyboards.answer import answers
 
 from aiogram.dispatcher import FSMContext
-from tgbot.misc.states import NotificationStates
+from tgbot.misc.states import QuestionsStates
 
-from ..cpd.ans_to_que import cpd as cdp_ids
-from ..cpd.ans_to_que import register_acc
+from tgbot.cpd.ans_to_que import cpd as cdp_ids
+from tgbot.cpd.ans_to_que import register_acc
 
 async def keyboard_reply(x):
     boards = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -69,7 +69,7 @@ async def questions(callback: types.CallbackQuery, state: FSMContext):
             await callback.message.edit_reply_markup(reply_markup=inline.board31)
 
         elif number == 1000001:
-            await state.set_state(NotificationStates.Q3)
+            await state.set_state(QuestionsStates.C1)
             await callback.message.answer("Введите ваш вопрос, он будет направлен в ЦПД")
 
         else:
@@ -79,8 +79,8 @@ async def questions(callback: types.CallbackQuery, state: FSMContext):
 
 
 def register_questions(dp: Dispatcher):
-    dp.register_message_handler(start_questions, commands=["Вопросы"], state = "*", commands_prefix='!/')
+    dp.register_message_handler(start_questions, commands=["Вопросы"], state = None, commands_prefix='!/')
     dp.register_callback_query_handler(questions, lambda callback: callback.data.startswith('b_b'), state=None)
-    dp.register_message_handler(CPD, state=NotificationStates.Q3)
+    dp.register_message_handler(CPD, state=QuestionsStates.C1)
 
     register_acc(dp)

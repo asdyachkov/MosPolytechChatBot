@@ -2,27 +2,31 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from tgbot.keyboards.PDbuttonsCallback import PD_callback
 from tgbot.misc.states import PDStates
-from tgbot.keyboards.PDbuttons import choose_course, choose_pd, choose_group_pd, choose_group_2_5_pd
+from tgbot.keyboards.PDbuttons import choose_course, choose_pd, choose_group_pd, choose_group_2_5_pd, choose_course_nochoice
 from aiogram.types import CallbackQuery
 import module_parser
 import json
+import os
 import datetime
 import time
 
-
+p = module_parser.ParserPD()
 async def start_pd(message: types.Message, state: FSMContext):
+    
     try:
         last_modified = time.strftime("%Y-%m-%d", time.strptime(time.ctime(os.path.getmtime(f"1_course.json"))))
         if str(last_modified) != str(datetime.date.today()):
-            p = module_parser.ParserPD()
             p.write_data_to_json_file(p.get_data_2_5_course(), '2-5_course.json')
             p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
     except:
-        p = module_parser.ParserPD()
         p.write_data_to_json_file(p.get_data_2_5_course(), '2-5_course.json')
         p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
-    await message.answer("Введите Ваш курс", reply_markup=choose_course)
-    await state.set_state(PDStates.W1)
+    if len(p.soup.find_all('tbody')) > 1:
+        await message.answer("Введите Ваш курс", reply_markup=choose_course)
+    else:
+        await message.answer("Введите Ваш курс", reply_markup=choose_course_nochoice)
+    await state.set_state(PDStates.W1)  
+
 
 
 async def end_pd(call: CallbackQuery, state: FSMContext):
@@ -31,7 +35,10 @@ async def end_pd(call: CallbackQuery, state: FSMContext):
 
 
 async def start_pd_back(call: CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Введите Ваш курс", reply_markup=choose_course)
+    if len(p.soup.find_all('tbody')) > 1:
+        await call.message.edit_text("Введите Ваш курс", reply_markup=choose_course)
+    else:
+        await call.message.edit_text("Введите Ваш курс", reply_markup=choose_course_nochoice)
     await state.set_state(PDStates.W1)
 
 

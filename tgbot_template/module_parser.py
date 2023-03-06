@@ -94,7 +94,7 @@ class ParserPD:
 
 
 	def _get_soup(self):
-		html = requests.get(self.url).content
+		html = requests.get(self.url).text
 		return BS(html, 'lxml')
 
 
@@ -130,7 +130,7 @@ class ParserPD:
 
 	def get_data_1_course(self):
 		data = dict()
-		for row in self.soup.find_all('tbody')[1].find_all('tr')[3:]:
+		for row in self.soup.find_all('tbody')[0].find_all('tr')[3:]:
 			tema = ''
 			group = ''
 			for i, col in enumerate(row.find_all('td')[1:]):

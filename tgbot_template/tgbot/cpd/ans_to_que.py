@@ -1,7 +1,8 @@
 from aiogram import types, Dispatcher
 
 #ID чатов цпд, в которых пишут ответ
-cpd = [742287623, 1541621229]
+# cpd = [742287623, 1541621229]
+cpd = [482131625]
 
 async def asdsad(message: types.Message):
     if message.from_user.id in cpd:
