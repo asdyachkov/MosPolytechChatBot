@@ -24,6 +24,6 @@ async def notification(message: types.Message, state: FSMContext):
 
 
 def register_notification(dp: Dispatcher):
-    dp.register_message_handler(start_notification, state=None, commands=["Пара"], commands_prefix='!/')
+    dp.register_message_handler(start_notification, state=None, commands=["pair"], commands_prefix='!/')
     dp.register_message_handler(notification, state=NotificationStates.Q1)
 

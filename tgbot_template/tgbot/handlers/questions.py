@@ -79,7 +79,7 @@ async def questions(callback: types.CallbackQuery, state: FSMContext):
 
 
 def register_questions(dp: Dispatcher):
-    dp.register_message_handler(start_questions, commands=["Вопросы"], state = None, commands_prefix='!/')
+    dp.register_message_handler(start_questions, commands=["questions"], state = None, commands_prefix='!/')
     dp.register_callback_query_handler(questions, lambda callback: callback.data.startswith('b_b'), state=None)
     dp.register_message_handler(CPD, state=QuestionsStates.C1)
 

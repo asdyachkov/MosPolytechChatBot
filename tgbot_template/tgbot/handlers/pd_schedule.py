@@ -126,7 +126,7 @@ async def output_pd_1_course(call: CallbackQuery, state: FSMContext):
 
 
 def register_pd(dp: Dispatcher):
-    dp.register_message_handler(start_pd, state=None, commands=["Расписание пд", "ПД", "пд"], commands_prefix='!/')
+    dp.register_message_handler(start_pd, state=None, commands=["pd"], commands_prefix='!/')
 
     dp.register_callback_query_handler(theme_pd_1_course, PD_callback.filter(choiсe="1"), state=PDStates.W1)
     dp.register_callback_query_handler(theme_pd_2_5_course, PD_callback.filter(choiсe="2-5"), state=PDStates.W1)
