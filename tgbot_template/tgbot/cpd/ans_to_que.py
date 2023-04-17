@@ -48,4 +48,4 @@ async def chat_id(mes: types.Message):
 def register_acc(dp: Dispatcher):
     
     dp.register_message_handler(chat_id, commands= "send_my_chatid")
-    dp.register_message_handler(asdsad)
+    # dp.register_message_handler(asdsad)

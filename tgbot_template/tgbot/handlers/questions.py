@@ -23,7 +23,7 @@ async def keyboard_reply(x):
 async def CPD(message: types.Message, state: FSMContext):
     for id in cdp_ids:
         #await message.bot.send_message (id, message.text + "\n\n/" + str(message.chat.id) + '/' + str(message.message_id)) попытка Reply ответа
-        await message.bot.send_message (id, message.text + "\n\n/" + str(message.chat.id))
+        await message.bot.send_message (id, message.text + "\n\n@" + str(message.chat.username))
     await state.finish()
 
 

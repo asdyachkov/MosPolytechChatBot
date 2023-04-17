@@ -17,10 +17,10 @@ async def start_pd(message: types.Message, state: FSMContext):
         last_modified = time.strftime("%Y-%m-%d", time.strptime(time.ctime(os.path.getmtime(f"1_course.json"))))
         if str(last_modified) != str(datetime.date.today()):
             p.write_data_to_json_file(p.get_data_2_5_course(), '2-5_course.json')
-            p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
+            #p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
     except:
         p.write_data_to_json_file(p.get_data_2_5_course(), '2-5_course.json')
-        p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
+        #p.write_data_to_json_file(p.get_data_1_course(), '1_course.json')
     if len(p.soup.find_all('tbody')) > 1:
         await message.answer("Введите Ваш курс", reply_markup=choose_course)
     else:
