@@ -1,21 +1,19 @@
 import asyncio
 import logging
+from threading import Thread
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
+from flask import Flask
 
 from tgbot.config import load_config
 from tgbot.filters.admin import AdminFilter
 from tgbot.handlers.admin import register_admin
-from tgbot.handlers.user import register_user
-from tgbot.handlers.echo import register_echo
 from tgbot.handlers.notification import register_notification
-
 from tgbot.handlers.pd_schedule import register_pd
-
 from tgbot.handlers.questions import register_questions
-
+from tgbot.handlers.user import register_user
 from tgbot.middlewares.environment import EnvironmentMiddleware
 
 logger = logging.getLogger(__name__)
@@ -37,8 +35,6 @@ def register_all_handlers(dp):
     register_pd(dp)
 
     register_questions(dp)
-
-
 
 
 async def main():
@@ -68,8 +64,26 @@ async def main():
         await bot.session.close()
 
 
+app = Flask('')
+
+
+@app.route('/')
+def home():
+    return "I'm alive"
+
+
+def run():
+    app.run(host='0.0.0.0', port=80)
+
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+
 if __name__ == '__main__':
     try:
+        keep_alive()
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logger.error("Bot stopped!")
