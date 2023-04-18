@@ -16,6 +16,7 @@ from tgbot.handlers.questions import register_questions
 from tgbot.handlers.user import register_user
 from tgbot.middlewares.environment import EnvironmentMiddleware
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -64,26 +65,8 @@ async def main():
         await bot.session.close()
 
 
-app = Flask('')
-
-
-@app.route('/')
-def home():
-    return "I'm alive"
-
-
-def run():
-    app.run(host='0.0.0.0', port=80)
-
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
-
 if __name__ == '__main__':
     try:
-        keep_alive()
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logger.error("Bot stopped!")
